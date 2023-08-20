@@ -4,15 +4,33 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 import json
+from data_management_app.models import JobPostModel
+
+
+def printAllData():
+    job_list = JobPostModel.objects.all()
+    for jobObject in job_list:
+        print(jobObject.linkedin_job_id," ", jobObject.title)
+
 
 def write_to_db(request):
     if request.method == "POST":
         # Load the JSON data from the request body
-        data_list = json.loads(request.body.decode("utf-8"))
+        job_list = json.loads(request.body.decode("utf-8"))
         # Process each object in the list
-        for data_obj in data_list:
-            jobId = data_obj.get('linkedinJobId')
-            print(jobId)
+        for jobObject in job_list:
+            jobId = jobObject.get('linkedinJobId')
+            job_link = jobObject.get('link')
+            job_title = jobObject.get('jobTitle')
+            companyName = jobObject.get('companyName')
+            jobDescription = jobObject.get('jobDescription')
 
+            if not JobPostModel.objects.filter(linkedin_job_id=jobId).exists():
+                JobPostModel(linkedin_job_id=jobId, link=job_link, title=job_title,
+                             company_name=companyName, job_description=jobDescription,
+                             minimum_yoe=-1, need_clearance="blank",
+                             sponsorship="blank", require_citizen="blank").save()
+        printAllData()
+        
         return JsonResponse({"message": "Data received and processed!"})
     return JsonResponse({"error": "Invalid request method"}, status=400)
