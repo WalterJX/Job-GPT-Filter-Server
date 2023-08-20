@@ -21,4 +21,5 @@ from data_management_app import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('write-to-db/', views.write_to_db, name='write_to_db'),
+    path('show-filtered-jobs/', views.show_jobs, name='show_jobs'),
 ]

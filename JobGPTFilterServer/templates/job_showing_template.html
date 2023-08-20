@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobs Data</title>
+    <style>
+        table {
+            border-collapse: collapse; /* Ensures that there are no spaces between table cells */
+            width: 100%;
+        }
+
+        table, th, td {
+            border: 1px solid black; /* Adds border to table, header cells, and data cells */
+        }
+
+        th, td {
+            padding: 8px 12px; /* Adds some padding inside each cell for better readability */
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2; /* Adds a light gray background to header cells */
+        }
+    </style>
+</head>
+<body>
+    <h1>Data from JobPostModel</h1>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 10px;"></th>
+                <th>Job ID</th>
+                <th>Company</th>
+                <th>Title</th>
+                <th>YOE</th>
+                <th>Clearance</th>
+                <th>Sponsorship</th>
+                <th>Citizen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for jobItem in job_list %}
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>{{ jobItem.linkedin_job_id }}</td>
+                <td>{{ jobItem.company_name }}</td>
+                <td><a href={{ jobItem.link }}>{{ jobItem.title }}</a></td>
+                <td>{{ jobItem.minimum_yoe }}</td>
+                <td>{{ jobItem.need_clearance }}</td>
+                <td>{{ jobItem.sponsorship }}</td>
+                <td>{{ jobItem.require_citizen }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

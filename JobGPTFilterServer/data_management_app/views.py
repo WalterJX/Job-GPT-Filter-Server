@@ -7,12 +7,6 @@ import json
 from data_management_app.models import JobPostModel
 
 
-def printAllData():
-    job_list = JobPostModel.objects.all()
-    for jobObject in job_list:
-        print(jobObject.linkedin_job_id," ", jobObject.title)
-
-
 def write_to_db(request):
     if request.method == "POST":
         # Load the JSON data from the request body
@@ -30,7 +24,11 @@ def write_to_db(request):
                              company_name=companyName, job_description=jobDescription,
                              minimum_yoe=-1, need_clearance="blank",
                              sponsorship="blank", require_citizen="blank").save()
-        printAllData()
         
         return JsonResponse({"message": "Data received and processed!"})
     return JsonResponse({"error": "Invalid request method"}, status=400)
+
+def show_jobs(request):
+    job_list = JobPostModel.objects.all().order_by('company_name')
+
+    return render(request, 'job_showing_template.html', {'job_list': job_list})
