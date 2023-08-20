@@ -20,5 +20,5 @@ from data_management_app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('print_request/', views.print_request_details, name='print_request_details'),
+    path('write-to-db/', views.write_to_db, name='write_to_db'),
 ]

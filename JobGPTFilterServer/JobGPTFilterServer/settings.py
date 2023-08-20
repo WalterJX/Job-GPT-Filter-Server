@@ -38,17 +38,31 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'data_management_app',
+    'corsheaders',
 ]
 
+#disabled CSRF protection to avoid 403 forbidden response. This is not recommended for production environments
+# because it can expose your application to cross-site request forgery attacks.
+# Please ensure that CSRF tokens are handled correctly instead of disabling this feature.
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+# not recommended for production
+# ideally should be something like this:
+CORS_ALLOWED_ORIGINS = [
+    "chrome-extension://ilpcemjjkpaepdnkmdfcmlihmofiojof",  # Your chrome extension's origin
+    "http://localhost:8000",
+    "http://127.0.0.1:9000",
+]
+# CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'JobGPTFilterServer.urls'
 

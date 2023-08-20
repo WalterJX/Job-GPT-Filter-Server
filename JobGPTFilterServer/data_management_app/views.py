@@ -2,21 +2,17 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.http import HttpResponse
+from django.http import JsonResponse
+import json
 
-def print_request_details(request):
-    # Printing the request method (e.g., GET, POST, etc.)
-    print("Request Method:", request.method)
-
-    # Printing the request headers
-    print("Request Headers:")
-    for header, value in request.headers.items():
-        print(f"{header}: {value}")
-
-    # If it's a POST request, you can print POST data as well
+def write_to_db(request):
     if request.method == "POST":
-        print("POST Data:")
-        for key, value in request.POST.items():
-            print(f"{key}: {value}")
+        # Load the JSON data from the request body
+        data_list = json.loads(request.body.decode("utf-8"))
+        # Process each object in the list
+        for data_obj in data_list:
+            jobId = data_obj.get('linkedinJobId')
+            print(jobId)
 
-    # Responding to the client
-    return HttpResponse("Request details printed in the console.")
+        return JsonResponse({"message": "Data received and processed!"})
+    return JsonResponse({"error": "Invalid request method"}, status=400)
