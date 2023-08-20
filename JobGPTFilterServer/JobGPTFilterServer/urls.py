@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('write-to-db/', views.write_to_db, name='write_to_db'),
     path('show-filtered-jobs/', views.show_jobs, name='show_jobs'),
+    path('show-filtered-jobs/start-gpt-filtering/', views.start_gpt_filtering, name='start_gpt_filtering')
 ]

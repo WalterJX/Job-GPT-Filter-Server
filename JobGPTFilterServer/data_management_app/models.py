@@ -9,5 +9,5 @@ class JobPostModel(models.Model):
     job_description = models.TextField()
     minimum_yoe = models.FloatField()  # minimum year of experience required
     need_clearance = models.CharField(max_length=10)  # whether the job needs some kind of security clearance
-    sponsorship = models.CharField(max_length=10)  # whether this role provides visa sponsorship
+    no_sponsorship = models.CharField(max_length=10)  # whether this role provides NO visa sponsorship
     require_citizen = models.CharField(max_length=10)

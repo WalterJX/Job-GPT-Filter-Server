@@ -26,6 +26,9 @@
 </head>
 <body>
     <h1>Data from JobPostModel</h1>
+    <button id="startGptFiltering" class="button">
+        Start GPT!
+    </button>
     <table>
         <thead>
             <tr>
@@ -35,7 +38,7 @@
                 <th>Title</th>
                 <th>YOE</th>
                 <th>Clearance</th>
-                <th>Sponsorship</th>
+                <th>No Sponsorship?</th>
                 <th>Citizen</th>
             </tr>
         </thead>
@@ -48,11 +51,70 @@
                 <td><a href={{ jobItem.link }}>{{ jobItem.title }}</a></td>
                 <td>{{ jobItem.minimum_yoe }}</td>
                 <td>{{ jobItem.need_clearance }}</td>
-                <td>{{ jobItem.sponsorship }}</td>
+                <td>{{ jobItem.no_sponsorship }}</td>
                 <td>{{ jobItem.require_citizen }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    <h1>Filtered out jobs</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Job ID</th>
+                <th>Company</th>
+                <th>Title</th>
+                <th>YOE</th>
+                <th>Clearance</th>
+                <th>NO Sponsorship?</th>
+                <th>Citizen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for jobItem in filtered_out_job_list %}
+            <tr>
+                <td>{{ jobItem.linkedin_job_id }}</td>
+                <td>{{ jobItem.company_name }}</td>
+                <td><a href={{ jobItem.link }}>{{ jobItem.title }}</a></td>
+                <td>{{ jobItem.minimum_yoe }}</td>
+                <td>{{ jobItem.need_clearance }}</td>
+                <td>{{ jobItem.no_sponsorship }}</td>
+                <td>{{ jobItem.require_citizen }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        document.getElementById('startGptFiltering').addEventListener('click', function() {
+            fetch('start-gpt-filtering/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                });
+        });
+    </script>
+
 </body>
 </html>
