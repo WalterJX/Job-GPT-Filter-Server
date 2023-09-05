@@ -1,4 +1,5 @@
 from collections import defaultdict
+from django.db.models import Q
 from django.shortcuts import render
 from django.http import JsonResponse
 import json
@@ -24,15 +25,18 @@ def write_to_db(request):
                              company_name=companyName, job_description=jobDescription,
                              minimum_yoe=-1, need_clearance="blank",
                              no_sponsorship="blank", require_citizen="blank").save()
-        
+
         return JsonResponse({"message": "Data received and processed!"})
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
 def show_jobs(request):
-    # job_list = JobPostModel.objects.exclude(need_clearance="blank").order_by('company_name')
-    # filtered_out_list = JobPostModel.objects.filter(need_clearance="blank")
-    job_list = JobPostModel.objects.all().order_by('company_name')
-    return render(request, 'job_showing_template.html', {'job_list': job_list})
+    rule = Q(minimum_yoe__gt=-1) & Q(minimum_yoe__lt=4) \
+           & ~Q(need_clearance="Yes") & ~Q(no_sponsorship="Yes") & ~Q(require_citizen="Yes")
+
+    job_list = JobPostModel.objects.filter(rule).order_by('company_name')
+    remaining_jobs = JobPostModel.objects.exclude(rule).order_by('company_name')
+    return render(request, 'job_showing_template.html',
+                  {'job_list': job_list, 'filtered_out_job_list': remaining_jobs})
 
 
 def update_base_on_gpt_answers(jobID, results):
@@ -78,8 +82,6 @@ def start_gpt_filtering(request):
             try:
                 print(f"start dealing with job id: {jobID}")
                 gpt_filter_op(jobDescription, jobID)
-                # answer = gpt_extract_info(jobDescription)
-                # update_base_on_gpt_answer(jobID, answer)
             except Exception as e:
                 print(f"An error occurred while processing job with id '{jobID}': {e}")
                 continue
