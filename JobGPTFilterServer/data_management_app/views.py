@@ -55,9 +55,10 @@ def gpt_filter_op(jobDescription, jobID):
     counts = defaultdict(lambda: defaultdict(int))
     for _ in range(attempt_times):
         answer = gpt_extract_info(jobDescription)
-        if answer.count("@") != 2:
-            raise ValueError("answer from GPT is invalid")
-        splitted_answers = re.search(r'@([^@]+)@', answer).group(1).split(",")
+        # if answer.count("@") != 2:
+        #     raise ValueError("answer from GPT is invalid")
+        # splitted_answers = re.search(r'@([^@]+)@', answer).group(1).split(",")
+        splitted_answers = answer.split(",")
         if len(splitted_answers) != 4:
             raise ValueError("answer from GPT is invalid")
         for idx, val in enumerate(splitted_answers):
