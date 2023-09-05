@@ -29,6 +29,9 @@
     <button id="startGptFiltering" class="button">
         Start GPT!
     </button>
+    <button id="resetJobStatus" class="button">
+        Rest jobs status
+    </button>
     <table>
         <thead>
             <tr>
@@ -103,6 +106,19 @@
 
         document.getElementById('startGptFiltering').addEventListener('click', function() {
             fetch('start-gpt-filtering/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                });
+        });
+        document.getElementById('resetJobStatus').addEventListener('click', function() {
+            fetch('reset-all-status/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

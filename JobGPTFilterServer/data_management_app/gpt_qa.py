@@ -3,10 +3,11 @@ import time
 
 
 def gpt_extract_info(jobDescription):
-    OPENAI_API_KEY = 'replace with your key'
+    OPENAI_API_KEY = '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'
     openai.api_key = OPENAI_API_KEY
 
     prompt_message = """
+    You are a experienced software engineer with 10 year of experience, and you are seeking new job opportunities.
     I will provide you with a job description, You will need to answer based on the following requirements & questions.
     1. What is the minimum year of experience required for this job with a Master degree? Answer with number.
     2. Does the description mention that this role needs any kind of security clearance? Answer Yes or No.
@@ -27,12 +28,12 @@ def gpt_extract_info(jobDescription):
                  "content": input}]
 
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=messages)
 
-    print(jobDescription)
+    # print(jobDescription)
     print(response["choices"][0]["message"]["content"])
 
-    time.sleep(0.1)
+    time.sleep(0.5)
 
     return response["choices"][0]["message"]["content"]

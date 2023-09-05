@@ -1,7 +1,5 @@
+from collections import defaultdict
 from django.shortcuts import render
-
-# Create your views here.
-from django.http import HttpResponse
 from django.http import JsonResponse
 import json
 from .models import JobPostModel
@@ -37,39 +35,62 @@ def show_jobs(request):
     return render(request, 'job_showing_template.html', {'job_list': job_list})
 
 
-def update_base_on_gpt_answer(jobID, answer):
-    if answer.count("@") != 2:
-        raise ValueError("answer from GPT is invalid")
-    extracted_text = re.search(r'@([^@]+)@', answer).group(1)
-    splitted_answers = extracted_text.split(',')
-    if len(splitted_answers) != 4:
+def update_base_on_gpt_answers(jobID, results):
+    if len(results) != 4:
         raise ValueError("answer from GPT is invalid")
     #yoe
-    if splitted_answers[0] != "Unsure":
-        JobPostModel.objects.filter(linkedin_job_id=jobID).update(minimum_yoe=float(splitted_answers[0]))
+    if results[0] != "Unsure":
+        JobPostModel.objects.filter(linkedin_job_id=jobID).update(minimum_yoe=float(results[0]))
     # clearance
-    JobPostModel.objects.filter(linkedin_job_id=jobID).update(need_clearance=splitted_answers[1])
+    JobPostModel.objects.filter(linkedin_job_id=jobID).update(need_clearance=results[1])
     # NO sponsorship
-    JobPostModel.objects.filter(linkedin_job_id=jobID).update(no_sponsorship=splitted_answers[2])
+    JobPostModel.objects.filter(linkedin_job_id=jobID).update(no_sponsorship=results[2])
     # citizenship
-    JobPostModel.objects.filter(linkedin_job_id=jobID).update(require_citizen=splitted_answers[3])
+    JobPostModel.objects.filter(linkedin_job_id=jobID).update(require_citizen=results[3])
 
+
+def gpt_filter_op(jobDescription, jobID):
+    # try multiple times as the result may be random, use the result that show up the most times
+    attempt_times = 3
+    counts = defaultdict(lambda: defaultdict(int))
+    for _ in range(attempt_times):
+        answer = gpt_extract_info(jobDescription)
+        if answer.count("@") != 2:
+            raise ValueError("answer from GPT is invalid")
+        splitted_answers = re.search(r'@([^@]+)@', answer).group(1).split(",")
+        if len(splitted_answers) != 4:
+            raise ValueError("answer from GPT is invalid")
+        for idx, val in enumerate(splitted_answers):
+            counts[idx][val] += 1
+    # Get the most common answer for each index
+    most_common_answers = [max(counts[idx], key=counts[idx].get) for idx in counts]
+    update_base_on_gpt_answers(jobID, most_common_answers)
 
 def start_gpt_filtering(request):
     if request.method == "POST":
         #only deal with unhandled data
-        # job_list = JobPostModel.objects.filter(need_clearance="blank")
-        job_list = JobPostModel.objects.all()
+        job_list = JobPostModel.objects.filter(need_clearance="blank")
+        # job_list = JobPostModel.objects.all()
         for jobObject in job_list:
             jobID = jobObject.linkedin_job_id
             jobDescription = jobObject.job_description
-            print("!!!JobDescription: ", jobDescription)
             try:
-                answer = gpt_extract_info(jobDescription)
-                update_base_on_gpt_answer(jobID, answer)
+                print(f"start dealing with job id: {jobID}")
+                gpt_filter_op(jobDescription, jobID)
+                # answer = gpt_extract_info(jobDescription)
+                # update_base_on_gpt_answer(jobID, answer)
             except Exception as e:
                 print(f"An error occurred while processing job with id '{jobID}': {e}")
                 continue
 
         return JsonResponse({"message": "Button was clicked on the server side!"})
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+def reset_all_status(request):
+    if request.method == "POST":
+        JobPostModel.objects.update(minimum_yoe=-1)
+        JobPostModel.objects.update(need_clearance="blank")
+        JobPostModel.objects.update(no_sponsorship="blank")
+        JobPostModel.objects.update(require_citizen="blank")
+        return JsonResponse({"message": "Reset all job status complete"})
     return JsonResponse({"error": "Invalid request method"}, status=400)
