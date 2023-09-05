@@ -3,7 +3,7 @@ import time
 
 
 def gpt_extract_info(jobDescription):
-    OPENAI_API_KEY = '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'
+    OPENAI_API_KEY = 'replace with your key'
     openai.api_key = OPENAI_API_KEY
 
     prompt_message = """
