@@ -1,5 +1,6 @@
 from collections import defaultdict
 from django.db.models import Q
+from django.db.models.functions import Length
 from django.shortcuts import render
 from django.http import JsonResponse
 import json
@@ -74,7 +75,12 @@ def gpt_filter_op(jobDescription, jobID):
 def start_gpt_filtering(request):
     if request.method == "POST":
         #only deal with unhandled data
-        job_list = JobPostModel.objects.filter(need_clearance="blank")
+        job_list = (JobPostModel.objects.filter(need_clearance="blank")
+                    .annotate(description_length = Length('job_description'))
+                    .order_by('description_length'))
+        #sort based on the length in job description
+
+
         # job_list = JobPostModel.objects.all()
         for jobObject in job_list:
             jobID = jobObject.linkedin_job_id

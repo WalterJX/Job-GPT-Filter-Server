@@ -21,9 +21,11 @@ def gpt_extract_info(jobDescription):
     Below is the job description:
     """
     description = re.sub(r'^\s*\n', '', jobDescription, flags=re.MULTILINE)
-    input = prompt_message + description
-    messages = [{"role": "user",
-                 "content": input}]
+    # input = prompt_message + description
+    messages = [
+        {"role": "system", "content": prompt_message},
+        {"role": "user", "content": description}
+    ]
 
     response = openai.ChatCompletion.create(
         model="gpt-4",
